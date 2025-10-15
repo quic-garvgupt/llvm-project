@@ -443,6 +443,15 @@ void tools::gnutools::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     addLTOOptions(ToolChain, Args, CmdArgs, Output, Inputs,
                   D.getLTOMode() == LTOK_Thin);
 
+  // Forward user-provided -I include directories to the linker
+  StringRef Linker = Args.getLastArgValue(options::OPT_fuse_ld_EQ);
+  if (Linker == "lld") {
+    for (const auto &IncDir : Args.getAllArgValues(options::OPT_I)) {
+      std::string InclOpt = std::string("--includepaths=") + IncDir;
+      CmdArgs.push_back(Args.MakeArgString(InclOpt));
+    }
+  }
+
   if (Args.hasArg(options::OPT_Z_Xlinker__no_demangle))
     CmdArgs.push_back("--no-demangle");
 

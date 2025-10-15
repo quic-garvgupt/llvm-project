@@ -47,6 +47,21 @@
 #include <memory>
 #include <string>
 
+namespace {
+const llvm::MCTargetOptions *ModuleSymTab_MCOpt = nullptr;
+} // anonymous namespace
+
+namespace llvm {
+namespace object {
+LLVM_ABI void setModuleSymbolTableMCOptionsFallback(const MCTargetOptions *Opt) {
+  ModuleSymTab_MCOpt = Opt;
+}
+LLVM_ABI void clearModuleSymbolTableMCOptionsFallback() {
+  ModuleSymTab_MCOpt = nullptr;
+}
+} // end namespace object
+} // end namespace llvm
+
 using namespace llvm;
 using namespace object;
 
@@ -92,6 +107,8 @@ static void initializeRecordStreamer(const Module &M,
   MCTargetOptions MCOptions;
   if (TM)
     MCOptions = TM->Options.MCOptions;
+  else if (ModuleSymTab_MCOpt)
+    MCOptions = *ModuleSymTab_MCOpt;
 
   std::unique_ptr<MCAsmInfo> MAI(T->createMCAsmInfo(*MRI, TT, MCOptions));
   if (!MAI)

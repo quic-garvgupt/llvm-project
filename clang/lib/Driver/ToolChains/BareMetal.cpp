@@ -666,6 +666,15 @@ void baremetal::Linker::ConstructJob(Compilation &C, const JobAction &JA,
     addLTOOptions(TC, Args, CmdArgs, Output, Inputs,
                   D.getLTOMode() == LTOK_Thin);
 
+  // Forward user-provided -I include directories to the linker
+  StringRef Linker = Args.getLastArgValue(options::OPT_fuse_ld_EQ);
+  if (Linker == "lld") {
+    for (const auto &IncDir : Args.getAllArgValues(options::OPT_I)) {
+      std::string InclOpt = std::string("--includepaths=") + IncDir;
+      CmdArgs.push_back(Args.MakeArgString(InclOpt));
+    }
+  }
+
   AddLinkerInputs(TC, Inputs, Args, CmdArgs, JA);
 
   if (TC.ShouldLinkCXXStdlib(Args)) {

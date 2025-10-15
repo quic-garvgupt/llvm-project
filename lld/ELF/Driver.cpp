@@ -1440,6 +1440,7 @@ static void readConfigs(Ctx &ctx, opt::InputArgList &args) {
       args.hasArg(OPT_ignore_data_address_equality);
   ctx.arg.ignoreFunctionAddressEquality =
       args.hasArg(OPT_ignore_function_address_equality);
+  ctx.arg.includepaths = args.getAllArgValues(OPT_includepaths);
   ctx.arg.init = args.getLastArgValue(OPT_init, "_init");
   ctx.arg.ltoAAPipeline = args.getLastArgValue(OPT_lto_aa_pipeline);
   ctx.arg.ltoCSProfileGenerate = args.hasArg(OPT_lto_cs_profile_generate);

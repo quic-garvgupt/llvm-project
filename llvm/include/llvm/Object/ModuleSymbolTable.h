@@ -31,6 +31,7 @@ namespace llvm {
 class GlobalValue;
 class Module;
 class TargetMachine;
+class MCTargetOptions;
 
 class ModuleSymbolTable {
 public:
@@ -70,6 +71,11 @@ public:
   CollectAsmSymvers(const Module &M,
                     function_ref<void(StringRef, StringRef)> AsmSymver);
 };
+
+namespace object {
+LLVM_ABI void setModuleSymbolTableMCOptionsFallback(const MCTargetOptions *Opt);
+LLVM_ABI void clearModuleSymbolTableMCOptionsFallback();
+} // end namespace object
 
 } // end namespace llvm
 

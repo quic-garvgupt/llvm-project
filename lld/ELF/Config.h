@@ -454,6 +454,7 @@ struct Config {
   unsigned timeTraceGranularity;
   int32_t splitStackAdjustSize;
   SmallVector<uint8_t, 0> packageMetadata;
+  std::vector<std::string> includepaths;
 
   // The following config options do not directly correspond to any
   // particular command line options.

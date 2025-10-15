@@ -38,6 +38,7 @@
 #include "llvm/Linker/IRMover.h"
 #include "llvm/MC/TargetRegistry.h"
 #include "llvm/Object/IRObjectFile.h"
+#include "llvm/Object/ModuleSymbolTable.h"
 #include "llvm/Support/Caching.h"
 #include "llvm/Support/CommandLine.h"
 #include "llvm/Support/Compiler.h"
@@ -899,7 +900,10 @@ LTO::addRegularLTO(InputFile &Input, ArrayRef<SymbolResolution> InputRes,
   UpgradeDebugInfo(M);
 
   ModuleSymbolTable SymTab;
+  // Provide MCOptions fallback (e.g. IASSearchPaths) to inline-asm parser when TM is null.
+  object::setModuleSymbolTableMCOptionsFallback(&Conf.Options.MCOptions);
   SymTab.addModule(&M);
+  object::clearModuleSymbolTableMCOptionsFallback();
 
   for (GlobalVariable &GV : M.globals())
     if (GV.hasAppendingLinkage())

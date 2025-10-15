@@ -47,6 +47,8 @@ static lto::Config createConfig(Ctx &ctx) {
 
   // LLD supports the new relocations and address-significance tables.
   c.Options = initTargetOptionsFromCodeGenFlags();
+  for (const std::string &P : ctx.arg.includepaths)
+    c.Options.MCOptions.IASSearchPaths.push_back(P);
   c.Options.EmitAddrsig = true;
   for (StringRef C : ctx.arg.mllvmOpts)
     c.MllvmArgs.emplace_back(C.str());
@@ -278,6 +280,7 @@ void BitcodeCompiler::add(BitcodeFile &f) {
     // their values are still not final.
     r.LinkerRedefined = sym->scriptDefined;
   }
+
   checkError(ctx.e, ltoObj->add(std::move(f.obj), resols));
 }
 
