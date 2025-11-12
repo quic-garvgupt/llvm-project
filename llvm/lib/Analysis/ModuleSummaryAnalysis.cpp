@@ -934,7 +934,7 @@ static void setLiveRoot(ModuleSummaryIndex &Index, StringRef Name) {
 ModuleSummaryIndex llvm::buildModuleSummaryIndex(
     const Module &M,
     std::function<BlockFrequencyInfo *(const Function &F)> GetBFICallback,
-    ProfileSummaryInfo *PSI,
+    ProfileSummaryInfo *PSI, MCTargetOptions *MCOpts,
     std::function<const StackSafetyInfo *(const Function &F)> GetSSICallback) {
   assert(PSI);
   bool EnableSplitLTOUnit = false;
@@ -978,7 +978,8 @@ ModuleSummaryIndex llvm::buildModuleSummaryIndex(
     // be listed on the llvm.used or llvm.compiler.used global and marked as
     // referenced from there.
     ModuleSymbolTable::CollectAsmSymbols(
-        M, [&](StringRef Name, object::BasicSymbolRef::Flags Flags) {
+        M,
+        [&](StringRef Name, object::BasicSymbolRef::Flags Flags) {
           // Symbols not marked as Weak or Global are local definitions.
           if (Flags & (object::BasicSymbolRef::SF_Weak |
                        object::BasicSymbolRef::SF_Global))
@@ -1031,7 +1032,8 @@ ModuleSummaryIndex llvm::buildModuleSummaryIndex(
                     SmallVector<ValueInfo, 0>{});
             Index.addGlobalValueSummary(*GV, std::move(Summary));
           }
-        });
+        },
+        MCOpts);
   }
 
   bool IsThinLTO = true;
@@ -1155,7 +1157,7 @@ ModuleSummaryIndexAnalysis::run(Module &M, ModuleAnalysisManager &AM) {
         return &FAM.getResult<BlockFrequencyAnalysis>(
             *const_cast<Function *>(&F));
       },
-      &PSI,
+      &PSI, MCOpts,
       [&FAM, NeedSSI](const Function &F) -> const StackSafetyInfo * {
         return NeedSSI ? &FAM.getResult<StackSafetyAnalysis>(
                              const_cast<Function &>(F))
@@ -1190,7 +1192,7 @@ bool ModuleSummaryIndexWrapperPass::runOnModule(Module &M) {
                          *const_cast<Function *>(&F))
                      .getBFI());
       },
-      PSI,
+      PSI, /* MCOpts */ nullptr,
       [&](const Function &F) -> const StackSafetyInfo * {
         return NeedSSI ? &getAnalysis<StackSafetyInfoWrapperPass>(
                               const_cast<Function &>(F))

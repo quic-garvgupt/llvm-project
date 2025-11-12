@@ -22,6 +22,7 @@ class Module;
 class ModulePass;
 class Pass;
 class raw_ostream;
+class MCTargetOptions;
 
 /// Create and return a pass that writes the module to the specified
 /// ostream. Note that this pass is designed for use with the legacy pass

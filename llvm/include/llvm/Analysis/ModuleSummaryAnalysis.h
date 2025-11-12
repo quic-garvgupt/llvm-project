@@ -15,6 +15,7 @@
 
 #include "llvm/IR/ModuleSummaryIndex.h"
 #include "llvm/IR/PassManager.h"
+#include "llvm/MC/MCTargetOptions.h"
 #include "llvm/Pass.h"
 #include "llvm/Support/Compiler.h"
 #include <functional>
@@ -27,6 +28,7 @@ class Function;
 class Module;
 class ProfileSummaryInfo;
 class StackSafetyInfo;
+class MCTargetOptions;
 
 /// Direct function to compute a \c ModuleSummaryIndex from a given module.
 ///
@@ -37,7 +39,7 @@ class StackSafetyInfo;
 LLVM_ABI ModuleSummaryIndex buildModuleSummaryIndex(
     const Module &M,
     std::function<BlockFrequencyInfo *(const Function &F)> GetBFICallback,
-    ProfileSummaryInfo *PSI,
+    ProfileSummaryInfo *PSI, MCTargetOptions *MCOpts = nullptr,
     std::function<const StackSafetyInfo *(const Function &F)> GetSSICallback =
         [](const Function &F) -> const StackSafetyInfo * { return nullptr; });
 
@@ -48,7 +50,11 @@ class ModuleSummaryIndexAnalysis
 
   LLVM_ABI static AnalysisKey Key;
 
+  MCTargetOptions *MCOpts;
+
 public:
+  ModuleSummaryIndexAnalysis(MCTargetOptions *MCOpts) : MCOpts(MCOpts) {}
+
   using Result = ModuleSummaryIndex;
 
   LLVM_ABI Result run(Module &M, ModuleAnalysisManager &AM);

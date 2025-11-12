@@ -28,6 +28,7 @@
 #include "llvm/ADT/iterator_range.h"
 #include "llvm/IR/Comdat.h"
 #include "llvm/IR/GlobalValue.h"
+#include "llvm/MC/MCTargetOptions.h"
 #include "llvm/Object/SymbolicFile.h"
 #include "llvm/Support/Allocator.h"
 #include "llvm/Support/Compiler.h"
@@ -164,8 +165,8 @@ struct Header {
 /// Fills in Symtab and StrtabBuilder with a valid symbol and string table for
 /// Mods.
 LLVM_ABI Error build(ArrayRef<Module *> Mods, SmallVector<char, 0> &Symtab,
-                     StringTableBuilder &StrtabBuilder,
-                     BumpPtrAllocator &Alloc);
+                     StringTableBuilder &StrtabBuilder, BumpPtrAllocator &Alloc,
+                     MCTargetOptions *MCOpts = nullptr);
 
 /// This represents a symbol that has been read from a storage::Symbol and
 /// possibly a storage::Uncommon.
